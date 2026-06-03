@@ -34,7 +34,7 @@ export const createScheduleController = async (req, res) => {
         location,
         description,
         duration: duration || 60,
-        maxParticipants: maxParticipants || 50,
+        maxParticipants: Number(maxParticipants) || 50,
         coachId: req.user.id,
       },
     });

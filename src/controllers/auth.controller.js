@@ -388,35 +388,3 @@ export const verifyEmailController = async (req, res) => {
     });
   }
 };
-
-
-// test email sender
-export const sendEmailController = async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-
-    if (!email || !otp) {
-      return res.status(400).json({
-        success: false,
-        message: "Email, subject and message are required",
-      });
-    }
-
-    await sendVerificationOtp({
-      email,
-      name: "Test User",
-      otp,
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Email sent successfully",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-};

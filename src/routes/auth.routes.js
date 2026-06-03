@@ -6,7 +6,6 @@ import {
     refreshTokenController,
     logoutController,
     verifyEmailController,
-    sendEmailController
 } from "../controllers/auth.controller.js";
 
 import {
@@ -58,10 +57,7 @@ router.post(
 );
 
 
-router.post(
-    "/otp",
-    sendEmailController
-);
+
 
 /*
 |--------------------------------------------------------------------------

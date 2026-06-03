@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.use(protect); // All routes require authentication
 
-router.post("/complete",validate(completeProfileSchema), completeProfileController);
+router.post("/complete", completeProfileController);
 router.get("/me", getMyProfileController);
 router.put("/update", updateProfileController);
 
