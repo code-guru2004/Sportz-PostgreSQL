@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 // CORS
 app.use(cors({
-  origin: "https://sportz-frontend-alpha.vercel.app", // Frontend URL
+  origin: "*", // Frontend URL
   credentials: true
 }));
 
