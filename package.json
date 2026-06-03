@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node server.js",
-    "build": "prisma generate && prisma migrate deploy",
+    "postinstall": "prisma generate",
+    "build": "prisma migrate deploy",
     "start": "node server.js"
   },
   "author": "",
