@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========== Enums ==========
+
+enum Role {
+  ATHLETE
+  COACH
+  ADMIN
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum OtpPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum Sport {
+  CRICKET
+  FOOTBALL
+}
+
+enum Level {
+  DISTRICT
+  STATE
+  NATIONAL
+}
+
+enum DocumentType {
+  AADHAR_CARD
+  PAN_CARD
+  BIRTH_CERTIFICATE
+  DRIVING_LICENSE
+  VOTER_ID
+  SCHOOL_CERTIFICATE
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  INFO
+  SCHEDULE
+  APPROVAL
+  REMINDER
+}
+
+// ========== Models ==========
+
+model User {
+  id               String   @id @default(cuid())
+  username         String
+  email            String   @unique
+  phone            String?  @unique
+  password         String
+
+  role             Role     @default(ATHLETE)
+
+  isVerified       Boolean  @default(false)
+
+  approvalStatus   ApprovalStatus @default(PENDING)
+
+  approvedById     String?
+
+  approvedBy       User? @relation("UserApprovals",fields: [approvedById],references: [id])
+
+  approvedUsers    User[] @relation("UserApprovals")
+
+  approvedAt       DateTime?
+  rejectionReason  String? @db.VarChar(500)
+
+  isBlocked        Boolean  @default(false)
+  profileCompleted Boolean  @default(false)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  profile          Profile?
+  sessions         Session[]
+  otps             Otp[]
+  schedules        Schedule[]
+  notifications    Notification[]
+
+  @@map("users")
+}
+
+model Session {
+  id               Int      @id @default(autoincrement())
+  userId           String
+  refreshTokenHash String
+  ip               String?
+  userAgent        String?
+  device           String?
+  revoked          Boolean  @default(false)
+  expiresAt        DateTime
+  lastUsedAt       DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id])
+
+  @@index([expiresAt])
+  @@index([userId])
+  @@index([refreshTokenHash])
+  @@map("sessions")
+}
+
+model Otp {
+  id        Int        @id @default(autoincrement())
+  email     String
+  userId    String
+  otpHash   String
+  purpose   OtpPurpose
+  expiresAt DateTime
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@index([expiresAt])
+  @@index([email])
+  @@index([userId])
+  @@map("otps")
+}
+
+model Profile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  fullName          String
+  dateOfBirth       DateTime
+  profilePictureUrl String   @default("")
+  club              String   @default("")
+  sport             Sport
+  address           String
+  level             Level
+  bio               String   @default("") @db.VarChar(300)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User              @relation(fields: [userId], references: [id])
+  documents         ProfileDocument[]
+
+  @@map("profiles")
+}
+
+model ProfileDocument {
+  id           Int          @id @default(autoincrement())
+  profileId    String
+  documentType DocumentType
+  documentUrl  String
+
+  profile      Profile      @relation(fields: [profileId], references: [id])
+
+  @@map("profile_documents")
+}
+
+model Schedule {
+  id              String         @id @default(cuid())
+  title           String
+  sport           Sport
+  date            DateTime
+  time            String
+  location        String
+  description     String?        @db.VarChar(500)
+  coachId         String
+  duration        Int            @default(60)
+  maxParticipants Int            @default(50)
+  status          ScheduleStatus @default(SCHEDULED)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  coach           User           @relation(fields: [coachId], references: [id])
+
+  @@index([sport, date])
+  @@index([coachId])
+  @@map("schedules")
+}
+
+model Notification {
+  id        String          @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  isRead    Boolean         @default(false)
+  metadata  Json?
+
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user      User            @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, isRead])
+  @@map("notifications")
+}
