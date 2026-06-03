@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 // CORS
 app.use(cors({
-  origin: "http://localhost:3000", // Frontend URL
+  origin: "https://sportz-frontend-alpha.vercel.app", // Frontend URL
   credentials: true
 }));
 
