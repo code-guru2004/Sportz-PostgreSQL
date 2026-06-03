@@ -25,7 +25,7 @@ app.use(cookieParser());
 // CORS
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://your-frontend-domain.com"
+  "https://sportz-frontend-alpha.vercel.app"
 ];
 
 app.use(
