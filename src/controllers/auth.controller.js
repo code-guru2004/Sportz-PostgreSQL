@@ -49,7 +49,7 @@ const hashToken = (token) => {
 export const registerController = async (req, res) => {
   try {
     const { username, email, password, phone, role } = req.validatedData;
-    console.log(req.body);
+    //console.log(req.body);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -79,6 +79,7 @@ export const registerController = async (req, res) => {
 
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("otp",otp)
     const otpHash = hashToken(otp);
 
     // Save OTP in database
@@ -393,31 +394,99 @@ export const verifyEmailController = async (req, res) => {
   }
 };
 
+/*---------------------------------------------------------------------------------
+|resend otp-------------------------------------------------------------------------
+*/
 
-// test email sender
-export const sendEmailController = async (req, res) => {
+export const resendOtpController = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { email } = req.body;
 
-    if (!email || !otp) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email, subject and message are required",
+        message: "Email is required",
       });
     }
 
-    await sendVerificationOtp({
-      email,
-      name: "Test User",
-      otp,
+    const user = await prisma.user.findUnique({
+      where: { email },
     });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already verified",
+      });
+    }
+
+    // Check existing unexpired OTP
+    const existingOtp = await prisma.otp.findFirst({
+      where: {
+        userId: user.id,
+        purpose: "EMAIL_VERIFICATION",
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Remove previous OTP record
+    if (existingOtp) {
+      await prisma.otp.delete({
+        where: {
+          id: existingOtp.id,
+        },
+      });
+    }
+
+    // Generate new OTP
+    const otp = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    console.log("your otp",otp)
+
+    const otpHash = hashToken(otp);
+
+    await prisma.otp.create({
+      data: {
+        email: user.email,
+        userId: user.id,
+        otpHash,
+        purpose: "EMAIL_VERIFICATION",
+        expiresAt: new Date(
+          Date.now() + 10 * 60 * 1000
+        ),
+      },
+    });
+
+    // Send email
+    await axios.post(
+      "https://sportz-frontend-alpha.vercel.app/api/email/auth-otp",
+      {
+        email: user.email,
+        name: user.username,
+        otp,
+      }
+    );
 
     return res.status(200).json({
       success: true,
-      message: "Email sent successfully",
+      message: "OTP sent successfully",
     });
   } catch (error) {
     console.log(error);
+
     return res.status(500).json({
       success: false,
       message: "Internal server error",
