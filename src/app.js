@@ -47,6 +47,15 @@ app.use(
 app.get("/", (req, res) => {
   res.send("Sports Training Management System API");
 });
+app.get("/smtp-test", async (req, res) => {
+  try {
+    await transporter.verify();
+    res.send("SMTP OK");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json(err);
+  }
+});
 
 // Routes
 app.use("/api/auth", authRoutes);
