@@ -132,7 +132,7 @@ export const approveUserController = async (req, res) => {
 
     // Send approval email
     await axios.post(
-      `${process.env.EMAIL_SERVICE_URL}/api/email/send-approval-email`,
+      `${process.env.EMAIL_SERVICE_URL}/api/email/send-status-email`,
       {
         email: user.email,
         name: userName,

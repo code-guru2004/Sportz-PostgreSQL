@@ -232,6 +232,7 @@ export const refreshTokenController = async (req, res) => {
         message: "Refresh token missing",
       });
     }
+    console.log("refrsh toekn:---", refreshToken)
 
     let decoded;
     try {
