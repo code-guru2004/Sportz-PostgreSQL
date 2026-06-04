@@ -6,8 +6,7 @@ from "../template/verificationOtp.template.js";
 
 
 
-const sendVerificationOtp =
-async ({
+const sendVerificationOtp = async ({
 
     email,
 
@@ -17,24 +16,29 @@ async ({
 
 }) => {
 
-    await transporter.sendMail({
+    try {
+        await transporter.sendMail({
 
-        from:
-            process.env.EMAIL_USER,
-
-        to: email,
-
-        subject:
-            "Verify Your Email - Sportz",
-
-        html:
-            verificationOtpTemplate({
-
-                name,
-
-                otp
-            })
-    });
+            from:
+                process.env.EMAIL_USER,
+    
+            to: email,
+    
+            subject:
+                "Verify Your Email - Sportz",
+    
+            html:
+                verificationOtpTemplate({
+    
+                    name,
+    
+                    otp
+                })
+        });
+    } catch (error) {
+        console.error("EMAIL ERROR:", err);
+        throw err;
+    }
 };
 
 
