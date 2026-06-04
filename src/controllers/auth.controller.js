@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 import {prisma} from "../config/prisma.js"; // default export (not { prisma })
 import sendVerificationOtp from "../utils/sendVerificationOtp.js";
-
+import axios from "axios"
 /*
 |--------------------------------------------------------------------------
 | Utility Functions
@@ -93,11 +93,14 @@ export const registerController = async (req, res) => {
     });
 
     // Send OTP email
-    await sendVerificationOtp({
-      email: user.email,
-      name: user.username,
-      otp,
-    });
+    await axios.post(
+      "https://sportz-frontend-alpha.vercel.app/api/email/auth-otp",
+      {
+        email: user.email,
+        name: user.username,
+        otp,
+      }
+    );
 
     return res.status(201).json({
       success: true,

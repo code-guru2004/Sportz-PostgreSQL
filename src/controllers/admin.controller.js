@@ -1,3 +1,4 @@
+import axios from "axios";
 import {prisma} from "../config/prisma.js";
 import sendApprovalEmail from "../utils/sendApprovalEmail.js";
 
@@ -130,14 +131,17 @@ export const approveUserController = async (req, res) => {
     const userName = user.profile?.fullName || user.username;
 
     // Send approval email
-    await sendApprovalEmail({
-      email: user.email,
-      name: userName,
-      role: user.role,
-      status: 'approved',
-      message: `Congratulations! Your ${user.role.toLowerCase()} account has been reviewed and approved. You can now log in to the Sports Training Management System and access all features available to ${user.role.toLowerCase()}s.`,
-      actionUrl: `${process.env.CLIENT_URL}/login`
-    });
+    await axios.post(
+      `${process.env.EMAIL_SERVICE_URL}/api/email/send-approval-email`,
+      {
+        email: user.email,
+        name: userName,
+        role: user.role,
+        status: "approved",
+        message: `Congratulations! Your ${user.role.toLowerCase()} account has been reviewed and approved. You can now log in to the Sports Training Management System and access all features available to ${user.role.toLowerCase()}s.`,
+        actionUrl: `https://sportz-frontend-alpha.vercel.app/login`,
+      }
+    );
 
     // Create notification
     await prisma.notification.create({
@@ -198,16 +202,21 @@ export const rejectUserController = async (req, res) => {
       }
     });
 
-    // Send rejection email
-    await sendApprovalEmail({
-      email: user.email,
-      name: userName,
-      role: user.role,
-      status: 'rejected',
-      message: rejectionReason || `We have reviewed your ${user.role.toLowerCase()} account registration. Unfortunately, we are unable to approve your application at this time. This could be due to incomplete information or not meeting the current requirements. Please contact support for more information.`,
-      actionUrl: `${process.env.CLIENT_URL}/contact`
-    });
 
+    // Send reject email
+    await axios.post(
+      `${process.env.EMAIL_SERVICE_URL}/api/email/send-status-email`,
+      {
+        email: user.email,
+        name: userName,
+        role: user.role,
+        status: "rejected",
+        message:
+        rejectionReason ||
+        `We have reviewed your ${user.role.toLowerCase()} account registration. Unfortunately, we are unable to approve your application at this time. This could be due to incomplete information or not meeting the current requirements. Please contact support for more information.`,
+      actionUrl: `https://sportz-frontend-alpha.vercel.app/contact`
+      }
+    );
     // Create notification
     await prisma.notification.create({
       data: {
