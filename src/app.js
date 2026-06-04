@@ -10,6 +10,7 @@ import scheduleRoutes from "./routes/schedule.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import transporter from "./config/nodemailer.js";
 
 const app = express();
 
