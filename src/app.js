@@ -10,7 +10,7 @@ import scheduleRoutes from "./routes/schedule.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import userRoutes from "./routes/user.routes.js";
-import transporter from "./config/nodemailer.js";
+
 
 const app = express();
 
@@ -47,15 +47,6 @@ app.use(
 
 app.get("/", (req, res) => {
   res.send("Sports Training Management System API");
-});
-app.get("/smtp-test", async (req, res) => {
-  try {
-    await transporter.verify();
-    res.send("SMTP OK");
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  }
 });
 
 // Routes

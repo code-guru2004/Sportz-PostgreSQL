@@ -92,7 +92,7 @@ export const registerController = async (req, res) => {
       },
     });
 
-    // Send OTP email
+    // Send OTP email to frondend
     await axios.post(
       "https://sportz-frontend-alpha.vercel.app/api/email/auth-otp",
       {
