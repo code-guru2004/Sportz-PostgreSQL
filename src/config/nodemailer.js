@@ -31,25 +31,25 @@ const transporter = nodemailer.createTransport({
 |--------------------------------------------------------------------------
 */
 
-// transporter.verify(
+transporter.verify(
 
-//     (error, success) => {
+    (error, success) => {
 
-//         if (error) {
+        if (error) {
 
-//             console.log(
-//                 "Email Service Error:",
-//                 error.message
-//             );
+            console.log(
+                "Email Service Error:",
+                error.message
+            );
 
-//         } else {
+        } else {
 
-//             console.log(
-//                 "Email Service Connected"
-//             );
-//         }
-//     }
-// );
+            console.log(
+                "Email Service Connected"
+            );
+        }
+    }
+);
 
 
 

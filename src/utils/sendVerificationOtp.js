@@ -36,8 +36,8 @@ const sendVerificationOtp = async ({
                 })
         });
     } catch (error) {
-        console.error("EMAIL ERROR:", err);
-        throw err;
+        console.error("EMAIL ERROR:", error);
+        throw error;
     }
 };
 
